@@ -3,7 +3,8 @@ from langchain.vectorstores import FAISS
 from langchain.document_loaders import UnstructuredFileLoader, TextLoader
 from configs.model_config import *
 import datetime
-from textsplitter import ChineseTextSplitter
+import csv
+from textsplitter import ChineseTextSplitter, CSVTextSplitter
 from typing import List, Tuple, Dict
 from langchain.docstore.document import Document
 import numpy as np
@@ -38,6 +39,14 @@ def load_file(filepath, sentence_size=SENTENCE_SIZE):
         loader = UnstructuredPaddleImageLoader(filepath, mode="elements")
         textsplitter = ChineseTextSplitter(pdf=False, sentence_size=sentence_size)
         docs = loader.load_and_split(text_splitter=textsplitter)
+    elif filepath.lower().endswith(".csv"):
+        loader = TextLoader(filepath, autodetect_encoding=True)
+        textsplitter = CSVTextSplitter(csv_separator=",")
+        docs = loader.load_and_split(textsplitter)
+    elif filepath.lower().endswith(".tsv"):
+        loader = TextLoader(filepath, autodetect_encoding=True)
+        textsplitter = CSVTextSplitter(csv_separator="\t")
+        docs = loader.load_and_split(textsplitter)
     else:
         loader = UnstructuredFileLoader(filepath, mode="elements")
         textsplitter = ChineseTextSplitter(pdf=False, sentence_size=sentence_size)
